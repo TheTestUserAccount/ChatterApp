@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AskAI</string>
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="instruction">1. Please enter your question in the input field.\n\n2. Once you have typed your question, click the "GO" button to receive the answer.\n\n3. Make sure to be specific and clear in your question to get the most accurate response.\n\n4. Take your time to think about what you want to ask before submitting it.\n\n5. If you need any assistance or have any difficulties, feel free to ask for help.\n\n6. After clicking "Go," please wait patiently for the answer to appear.</string>
+
+</resources>
