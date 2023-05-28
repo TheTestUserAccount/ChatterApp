@@ -1,4 +1,4 @@
-package com.test.askai
+package com.hqkhan.askai
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

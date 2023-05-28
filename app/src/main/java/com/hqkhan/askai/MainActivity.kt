@@ -1,4 +1,4 @@
-package com.test.askai
+package com.hqkhan.askai
 
 
 import android.annotation.TargetApi
@@ -27,63 +27,57 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
+/** Created by HQKhan */
 
 class MainActivity : AppCompatActivity() {
+
     val API_KEY = "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"
-    var userInputEditText: EditText? = null
-    var responseTextView: TextView? = null
-    var contact: ImageView? = null
-    var choiceText = ""
-    var loader: ProgressBar? = null
+    var mChoiceText = ""
+    var mUserInput = "";
+    lateinit var mSendButton: Button
+    lateinit var mClearButton: Button
+    lateinit var mProgressLoader: ProgressBar
+    lateinit var mUserInputET: EditText
+    lateinit var mResponseTV: TextView
+    lateinit var mToolbarTitle: TextView
+    lateinit var mToolbarInfo: ImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        loader = findViewById(R.id.loader)
+        mProgressLoader = findViewById(R.id.loader)
+        mToolbarTitle = findViewById(R.id.title_screen)
 
-         var textView222222:TextView=findViewById(R.id.textView222222)
-         var imageView2222:ImageView=findViewById(R.id.imageView2222)
-        imageView2222.setOnClickListener {
+        mToolbarInfo = findViewById(R.id.iv_info)
+        mToolbarInfo.setOnClickListener {
             val intent = Intent(this, Contact::class.java)
             startActivity(intent)
         }
-        textView222222.setText("AskAI")
+        mToolbarTitle.text = "AskAI"
 
-        userInputEditText = findViewById(R.id.userInputEditText)
-        responseTextView = findViewById(R.id.responseTextView)
-        var userInput = "";
-        val sendButton = findViewById<Button>(R.id.sendButton)
-        val cleardButton = findViewById<Button>(R.id.clearButton)
+        mUserInputET = findViewById(R.id.userInputEditText)
+        mResponseTV = findViewById(R.id.responseTextView)
+        mSendButton = findViewById(R.id.sendButton)
 
-      /*  contact = findViewById(R.id.contact_info)
-        contact!!.setOnClickListener {
-            val intent = Intent(this, Contact::class.java)
-            startActivity(intent)
-        }
-*/
-
-        sendButton.setOnClickListener {
+        mClearButton = findViewById(R.id.clearButton)
+        mSendButton.setOnClickListener {
             hideKeyboard(it);
-            loader!!.setVisibility(View.VISIBLE);
-
+            mProgressLoader!!.visibility = View.VISIBLE;
 
             if (connectivityManager()) {
-                userInput = userInputEditText!!.text.toString()
-                // Using coroutines to run this block in backgroud thread
-
+                mUserInput = mUserInputET!!.text.toString()
+                // Using coroutines to run this block in background thread
                 val mediaType: MediaType = "application/json; charset=utf-8".toMediaType()
                 val okHttpClient = OkHttpClient.Builder()
                     .callTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS)
 
-
-                    // Set the call timeout to 30 seconds
                     .build()
-                var khan = "tell me some pashto quotres in pashto language"
                 val json = "{" +
                         "  \"model\": \"text-davinci-003\"," +
-                        "  \"prompt\": \"$userInput\"," +
+                        "  \"prompt\": \"$mUserInput\"," +
                         "  \"temperature\": 0," +
                         "  \"max_tokens\": 1300," +
                         "  \"top_p\": 1," +
@@ -97,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                         .url("https://api.openai.com/v1/completions")
                         .addHeader(
                             "Authorization",
-                            "Bearer " + "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"
+                            "Bearer " + API_KEY
                         )
                         .post(requestBody)
                         .build()
@@ -107,50 +101,20 @@ class MainActivity : AppCompatActivity() {
                         MainScope().launch {
 
                             val json = response.body!!.string()
-
                             Log.i("TAG", "onResponse: ${json}")
-                            val jsonobject = JSONObject(json) //your response
-// Inside your API call onResponse or onFailure method
-
-                            loader!!.visibility = View.GONE;
-
+                            mProgressLoader!!.visibility = View.GONE;
                             try {
                                 val jsonObject = JSONObject(json)
                                 val choicesArray: JSONArray = jsonObject.getJSONArray("choices")
                                 if (choicesArray.length() > 0) {
                                     val choiceObject = choicesArray.getJSONObject(0)
-                                    choiceText = choiceObject.getString("text")
-
-                                    // Now you can use the 'choiceText' variable which contains the text value from the choices array
-                                    Log.i("TAGRESPONSE", choicesArray[0].toString())
-                                    Log.i("TAGRESPONSEInner", choiceText)
-                                    responseTextView!!.text = choiceText
-//                                        responseTextView!!.movementMethod = ScrollingMovementMethod()
-
-
+                                    mChoiceText = choiceObject.getString("text")
+                                    mResponseTV!!.text = mChoiceText
                                 }
                             } catch (e: JSONException) {
                                 e.printStackTrace()
-                            }//                     val jsonobject = JSONObject(json) //your response
+                            }
 
-                            /*  try {
-                                    val result: String =
-                                        jsonobject.getString("choices")
-
-
-
-                                    val name = result.get(0..!).toString()
-
-                                    //result is key for which you need to retrieve data
-                                    Log.i("TAGRESPONSE", jsonobject.getString("choices"))
-                                    Log.i("TAGRESPONSEInner", name)
-
-
-                                } catch (e: JSONException) {
-                                     e.printStackTrace()
-                                    Log.i("TAGRESPONSEERROR", jsonobject.getString("choices"))
-
-                                }*/
                         }
                     }
 
@@ -158,35 +122,24 @@ class MainActivity : AppCompatActivity() {
                         Log.i("TAG", "onFailure: $e")
                         Looper.prepare();
                         Snackbar.make(
-                            sendButton,
+                            mSendButton,
                             "Failed to fetch data. Please try again later.",
                             Snackbar.LENGTH_LONG
                         )
                             .setAction("Cancel") {
-                                // Responds to click on the action
                             }.show()
                     }
                 })
             } else {
-                Snackbar.make(sendButton, "No internet connection", Snackbar.LENGTH_LONG)
+                Snackbar.make(mSendButton, "No internet connection", Snackbar.LENGTH_LONG)
                     .setAction("Cancel") {
-                        // Responds to click on the action
                     }.show()
             }
-
         }
-
-
-
-        cleardButton.setOnClickListener {
-
-            userInputEditText!!.text.clear() // Clear the text
-            responseTextView!!.text = ""
-
-
+        mClearButton.setOnClickListener {
+            mUserInputET!!.text.clear()
+            mResponseTV!!.text = ""
         }
-
-
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -207,18 +160,14 @@ class MainActivity : AppCompatActivity() {
                     return true
                 }
             }
-
         }
         return false
     }
 
     private fun exit() {
-        MaterialAlertDialogBuilder(this,R.style.AlertDialogTheme)
+        MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
             .setTitle("Exit")
             .setMessage("Do you want to exit the App ?")
-//            .setNeutralButton("Neutral") { dialog, which ->
-//                // Respond to neutral button press
-//            }
             .setNegativeButton("CANCEL") { dialog, which ->
             }
             .setPositiveButton("YES") { dialog, which ->
@@ -226,7 +175,6 @@ class MainActivity : AppCompatActivity() {
             }
             .show()
     }
-
 
     private fun hideKeyboard(view: View) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

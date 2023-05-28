@@ -1,4 +1,4 @@
-package com.test.askai
+package com.hqkhan.askai
 
 import org.junit.Test
 
